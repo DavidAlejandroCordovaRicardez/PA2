@@ -238,9 +238,6 @@ async function guardarActividad(){
   const termino = document.getElementById('fTermino').value;
   const desc = document.getElementById('fDesc').value.trim();
   const resultado = document.getElementById('fResultado').value.trim();
-  const camioneta = document.getElementById('fCamioneta').value.trim();
-  const folio = document.getElementById('fFolio').value.trim();
-  const placas = document.getElementById('fPlacas').value.trim();
   const actividad = document.getElementById('fActividad').value.trim();
 
   if(!nombre) return alert('Escribe tu nombre');
@@ -255,9 +252,6 @@ async function guardarActividad(){
     tipo: actividad,
     descripcion: desc,
     resultado,
-    camioneta,
-    folio,
-    placas
   });
 
   localStorage.setItem('pa_nombre', nombre);
@@ -281,7 +275,6 @@ setTimeout(() => {
 }
 
 window.addEventListener('DOMContentLoaded',()=>{
-  cargarNombreLS();
   document.getElementById('fFecha').value = getFechaActiva();
 });
 </script>
