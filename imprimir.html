@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Imprimir Actividades</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:Arial,sans-serif;font-size:13px;background:#f0f0f0;color:#222;}
+
+    /* HEADER */
+    header{background:#1a5c2a;color:white;padding:10px 20px;
+           display:flex;align-items:center;gap:14px;}
+    .logo{width:50px;height:50px;background:white;border-radius:50%;
+          display:flex;align-items:center;justify-content:center;
+          font-weight:bold;color:#1a5c2a;font-size:11px;text-align:center;flex-shrink:0;}
+    header h1{font-size:19px;letter-spacing:1px;}
+    header p{font-size:11px;opacity:.85;margin-top:2px;}
+
+    /* BARRA FUNCIONARIO */
+    .barra{background:#fff;border-bottom:2px solid #1a5c2a;padding:7px 20px;
+           display:flex;gap:22px;flex-wrap:wrap;align-items:center;font-size:12px;}
+    .barra strong{color:#1a5c2a;}
+
+    /* CONTROLES */
+    .controles{max-width:1100px;margin:14px auto;padding:0 15px;
+               display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;}
+    .ctrl-grupo{display:flex;flex-direction:column;gap:4px;}
+    .ctrl-grupo label{font-size:12px;font-weight:bold;color:#333;}
+    .ctrl-grupo input[type=date]{padding:5px 8px;border:1px solid #ccc;
+                                  border-radius:3px;font-size:12px;}
+    .btn{border:none;border-radius:3px;cursor:pointer;padding:7px 16px;font-size:12px;}
+    .bv{background:#1a5c2a;color:white;font-weight:bold;}
+    .bv:hover{background:#145022;}
+    .ba{background:#ffd700;color:#222;font-weight:bold;}
+    .ba:hover{background:#e6c200;}
+    .bg{background:#888;color:white;}
+
+    /* RESUMEN */
+    .resumen{max-width:1100px;margin:0 auto 10px;padding:0 15px;
+             display:flex;gap:16px;flex-wrap:wrap;}
+    .res-card{background:white;border:1px solid #ccc;border-radius:4px;
+              padding:10px 18px;text-align:center;min-width:130px;}
+    .res-card .num{font-size:26px;font-weight:bold;color:#1a5c2a;}
+    .res-card .lbl{font-size:11px;color:#666;margin-top:2px;}
+
+    /* CONTENIDO */
+    .contenido{max-width:1100px;margin:0 auto;padding:0 15px 30px;}
+
+    /* BLOQUE POR DÍA */
+    .dia-bloque{background:white;border:1px solid #ccc;border-radius:4px;
+                margin-bottom:14px;overflow:hidden;}
+    .dia-titulo{background:#1a5c2a;color:white;padding:6px 14px;
+                font-size:13px;font-weight:bold;display:flex;
+                justify-content:space-between;align-items:center;}
+    .dia-titulo .conteo{font-size:11px;opacity:.85;font-weight:normal;}
+
+    /* TABLA */
+    table{width:100%;border-collapse:collapse;}
+    thead tr{background:#2d7a3e;color:white;}
+    thead th{padding:6px 8px;text-align:center;font-size:12px;}
+    tbody tr:nth-child(even){background:#f7f7f7;}
+    tbody td{padding:6px 8px;font-size:12px;vertical-align:middle;
+             border-bottom:1px solid #eee;}
+    .td-desc{
+  max-width:340px;
+  white-space:pre-wrap;
+  word-break:break-word;
+}
+    .badge{display:inline-block;background:#d4edda;color:#155724;
+           border-radius:10px;padding:2px 9px;font-size:11px;}
+    .vacio{text-align:center;color:#888;padding:30px;font-style:italic;}
+
+    /* SIN RESULTADOS */
+    .sin-res{background:white;border:1px solid #ccc;border-radius:4px;
+             text-align:center;padding:40px;color:#888;font-size:14px;}
+
+    /* ══════════════════════════════
+       ESTILOS DE IMPRESIÓN
+       ══════════════════════════════ */
+    @media print{
+      /* Ocultar todo lo que no es imprimible */
+      .no-print{display:none !important;}
+      body{background:white;font-size:11px;}
+
+      /* Header se imprime */
+      header{
+        background:#1a5c2a !important;
+        -webkit-print-color-adjust:exact;
+        print-color-adjust:exact;
+        padding:8px 16px;
+      }
+      .barra{padding:5px 16px;border-bottom:2px solid #1a5c2a;}
+
+      .contenido{padding:0 10px 10px;}
+      .resumen{padding:0 10px;margin-bottom:8px;}
+
+      .res-card{padding:6px 12px;}
+      .res-card .num{font-size:20px;}
+
+      /* Bloques por día */
+      .dia-bloque{
+        margin-bottom:10px;
+        page-break-inside:avoid;
+        border:1px solid #999;
+      }
+      .dia-titulo{
+        background:#1a5c2a !important;
+        color:white !important;
+        -webkit-print-color-adjust:exact;
+        print-color-adjust:exact;
+        padding:5px 12px;
+      }
+
+      /* Tabla */
+      thead tr{
+        background:#2d7a3e !important;
+        color:white !important;
+        -webkit-print-color-adjust:exact;
+        print-color-adjust:exact;
+      }
+      thead th{padding:4px 6px;font-size:11px;}
+      tbody td{padding:4px 6px;font-size:11px;border-bottom:1px solid #ddd;}
+      tbody tr:nth-child(even) td{
+        background:#f5f5f5 !important;
+        -webkit-print-color-adjust:exact;
+        print-color-adjust:exact;
+      }
+      .badge{
+        background:#d4edda !important;
+        color:#155724 !important;
+        -webkit-print-color-adjust:exact;
+        print-color-adjust:exact;
+      }
+
+      /* Pie de página en cada hoja */
+      .pie-impresion{display:block !important;}
+    }
+
+    /* Pie de impresión (solo visible al imprimir) */
+    .pie-impresion{
+      display:none;
+      text-align:center;
+      font-size:10px;
+      color:#666;
+      margin-top:20px;
+      border-top:1px solid #ccc;
+      padding-top:8px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">PA</div>
+  <div>
+    <h1>PROCURADURÍA AGRARIA</h1>
+    <p>DESARROLLO TERRITORIAL — Reporte de Actividades</p>
+  </div>
+</header>
+
+
+
+<!-- CONTROLES (no se imprimen) -->
+<div class="controles no-print">
+  <div class="ctrl-grupo">
+    <label>Del:</label>
+    <input type="date" id="ctrlDesde"/>
+  </div>
+  <div class="ctrl-grupo">
+    <label>Al:</label>
+    <input type="date" id="ctrlHasta"/>
+  </div>
+  <button class="btn bv" onclick="cargarReporte()">🔍 Ver reporte</button>
+  <button class="btn ba" onclick="window.print()">🖨 Imprimir / Guardar PDF</button>
+  <a href="index.html" class="btn bg" style="text-decoration:none;
+     display:inline-flex;align-items:center;">← Volver</a>
+</div>
+
+<!-- TARJETAS RESUMEN -->
+<div class="resumen" id="resumen" style="display:none"></div>
+
+<!-- TÍTULO DEL REPORTE (solo impresión) -->
+<div id="tituloReporte"
+     style="max-width:1100px;margin:0 auto 10px;padding:0 15px;display:none;">
+  <div style="background:#1a5c2a;color:white;padding:8px 14px;
+              border-radius:4px;font-weight:bold;font-size:14px;">
+    📅 Reporte de Actividades — Período: <span id="lblPeriodo"></span>
+  </div>
+</div>
+
+<!-- CONTENIDO DEL REPORTE -->
+<div class="contenido" id="contenido"></div>
+
+<!-- PIE DE IMPRESIÓN -->
+<div class="pie-impresion" id="pieImpresion">
+  Procuraduría Agraria — Desarrollo Territorial |
+  Reporte generado el <span id="pieDate"></span> |
+  Funcionario: <span id="pieFuncionario"></span>
+</div>
+
+
+<script>
+/* ══════════════════════════════════════════════
+   BASE DE DATOS LOCAL  (mismo localStorage)
+   ══════════════════════════════════════════════ */
+const API_URL =
+"https://script.google.com/macros/s/AKfycbx5K3T4GVVXWIcI2qVLNxF7JYTqOi1E_exQI2r6tTI1hDeTsnoC605h9cTsalpPf1vbhg/exec";
+
+const DB = {
+
+  async getRango(desde,hasta){
+
+  const r = await fetch(API_URL);
+  const datos = await r.json();
+
+  const resultado = {};
+
+  datos.slice(1).forEach(fila=>{
+
+    const fecha = fila[3];
+
+    if(!fecha) return;
+
+    const fechaRegistro = new Date(fecha);
+    const fechaInicio = new Date(desde + "T00:00:00");
+    const fechaFin = new Date(hasta + "T23:59:59");
+
+    if(fechaRegistro >= fechaInicio &&
+       fechaRegistro <= fechaFin){
+
+      if(!resultado[fecha]){
+        resultado[fecha] = [];
+      }
+
+      resultado[fecha].push({
+  id:fila[0],
+  timestamp:fila[1],
+
+  nombre:fila[2],
+  fecha:fila[3],
+
+  inicio:fila[4],
+  termino:fila[5],
+
+  tipo:fila[6],
+  descripcion:fila[7],
+  resultado:fila[8]
+      });
+    }
+
+  });
+
+  return Object.keys(resultado)
+    .sort()
+    .map(fecha => ({
+      fecha,
+      lista: resultado[fecha]
+    }));
+}
+
+};
+
+const CFG = {
+  get() { return JSON.parse(localStorage.getItem('pa_config') || '{}'); }
+};
+
+/* ══════════════════════════════════════════════
+   UTILIDADES
+   ══════════════════════════════════════════════ */
+function fmtFecha(d)  { return d.toISOString().split('T')[0]; }
+function parseFecha(s){ const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); }
+
+function labelFechaLargo(s){
+
+  const fecha = new Date(s);
+
+  if(isNaN(fecha)){
+    return s;
+  }
+
+  return fecha.toLocaleDateString('es-MX',{
+    weekday:'long',
+    year:'numeric',
+    month:'long',
+    day:'numeric'
+  });
+}
+
+function labelFechaCorto(s){
+
+  const fecha = new Date(s);
+
+  if(isNaN(fecha)){
+    return s;
+  }
+
+  return fecha.toLocaleDateString('es-MX',{
+    day:'2-digit',
+    month:'long',
+    year:'numeric'
+  });
+}
+
+/* ══════════════════════════════════════════════
+   APLICAR CONFIG
+   ══════════════════════════════════════════════ */
+function aplicarConfig() {
+  const c = CFG.get();
+  const set = (id, v) => { const e=document.getElementById(id); if(e) e.textContent=v||'—'; };
+  set('tnombre',    c.nombre);
+  set('tdelegacion',c.delegacion);
+  set('tcamioneta', c.camioneta);
+  set('tfolio',     c.folio);
+  set('tplacas',    c.placas);
+  // Pie de impresión
+  const pie = document.getElementById('pieFuncionario');
+  if (pie) pie.textContent = c.nombre || '—';
+}
+
+/* ══════════════════════════════════════════════
+   CARGAR Y RENDERIZAR REPORTE
+   ══════════════════════════════════════════════ */
+async function cargarReporte() {
+  const desde = document.getElementById('ctrlDesde').value;
+  const hasta = document.getElementById('ctrlHasta').value;
+
+  if (!desde || !hasta) {
+    alert('Selecciona el rango de fechas.');
+    return;
+  }
+  if (desde > hasta) {
+    alert('La fecha "Del" no puede ser mayor que "Al".');
+    return;
+  }
+
+  const dias = await DB.getRango(desde, hasta);
+  renderReporte(dias, desde, hasta);
+  // Actualizar URL sin recargar (para compartir o recordar el rango)
+  history.replaceState(null, '', `?desde=${desde}&hasta=${hasta}`);
+}
+
+function renderReporte(dias, desde, hasta) {
+  const contenido = document.getElementById('contenido');
+  const resumen   = document.getElementById('resumen');
+  const tituloEl  = document.getElementById('tituloReporte');
+  const lblPeriodo= document.getElementById('lblPeriodo');
+
+  // Calcular totales
+  let totalActs  = 0;
+  const porTipo  = {};
+  dias.forEach(d => {
+    totalActs += d.lista.length;
+    d.lista.forEach(a => {
+      porTipo[a.tipo] = (porTipo[a.tipo] || 0) + 1;
+    });
+  });
+
+  // Título período
+  lblPeriodo.textContent =
+    labelFechaCorto(desde) + ' — ' + labelFechaCorto(hasta);
+  tituloEl.style.display = 'block';
+
+  // Tarjetas resumen
+  resumen.style.display = 'flex';
+  resumen.innerHTML = `
+    <div class="res-card">
+      <div class="num">${dias.length}</div>
+      <div class="lbl">Días con actividad</div>
+    </div>
+    <div class="res-card">
+      <div class="num">${totalActs}</div>
+      <div class="lbl">Total de actividades</div>
+    </div>
+    ${Object.entries(porTipo).sort((a,b)=>b[1]-a[1]).map(([tipo,n])=>`
+    <div class="res-card">
+      <div class="num">${n}</div>
+      <div class="lbl">${tipo}</div>
+    </div>`).join('')}
+  `;
+
+  // Sin resultados
+  if (!dias.length) {
+    contenido.innerHTML = `
+      <div class="sin-res">
+        📭 No hay actividades registradas en el período seleccionado.<br>
+        <small style="font-size:12px;color:#aaa;margin-top:8px;display:block">
+          ${labelFechaCorto(desde)} al ${labelFechaCorto(hasta)}
+        </small>
+      </div>`;
+    return;
+  }
+
+  // Bloques por día
+  contenido.innerHTML = dias.map(d => `
+    <div class="dia-bloque">
+      <div class="dia-titulo">
+        <span>📅 ${labelFechaLargo(d.fecha)}</span>
+        <span class="conteo">${d.lista.length} actividad${d.lista.length!==1?'es':''}</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <tr>
+  <th>INICIO</th>
+  <th>TÉRMINO</th>
+  <th>NOMBRE</th>
+  <th>ACTIVIDAD</th>
+  <th class="td-desc">DESCRIPCIÓN</th>
+  <th>RESULTADO / REGISTRO</th>
+  <th>HORA DE REGISTRO</th>
+</tr>
+          </tr>
+        </thead>
+        <tbody>
+          ${d.lista.map(a => `
+          <tr>
+  <td style="text-align:center">${formatearHora(a.inicio)}</td>
+  <td style="text-align:center">${formatearHora(a.termino)}</td>
+
+  <td>${a.nombre || '—'}</td>
+
+  <td style="text-align:center">
+    <span class="badge">${a.tipo}</span>
+  </td>
+
+  <td class="td-desc">${a.descripcion || ''}</td>
+
+  <td>${a.resultado || '—'}</td>
+
+  <td style="font-size:10px;color:#888;white-space:nowrap">
+    ${a.timestamp || '—'}
+  </td>
+</tr>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  `).join('');
+
+  // Actualizar pie de impresión
+  document.getElementById('pieDate').textContent =
+    new Date().toLocaleDateString('es-MX',
+      {day:'2-digit', month:'long', year:'numeric'});
+}
+
+/* ══════════════════════════════════════════════
+   LEER PARÁMETROS DE URL  (?desde=...&hasta=...)
+   ══════════════════════════════════════════════ */
+function leerParams() {
+  const p = new URLSearchParams(window.location.search);
+  return {
+    desde: p.get('desde') || '',
+    hasta: p.get('hasta') || ''
+  };
+}
+function formatearHora(valor){
+
+  if(!valor) return '—';
+
+  const fecha = new Date(valor);
+
+  if(isNaN(fecha)) return valor;
+
+  return fecha.toLocaleTimeString('es-MX',{
+    hour:'2-digit',
+    minute:'2-digit',
+    hour12:false
+  });
+}
+
+/* ══════════════════════════════════════════════
+   INIT
+   ══════════════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded', async () => {
+  aplicarConfig();
+
+  const hoy    = fmtFecha(new Date());
+  const params = leerParams();
+
+  // Si viene con parámetros desde index.html, cargar automáticamente
+  if (params.desde && params.hasta) {
+    document.getElementById('ctrlDesde').value = params.desde;
+    document.getElementById('ctrlHasta').value = params.hasta;
+    await cargarReporte();
+  } else {
+    // Por defecto: mes actual
+    const primerDia = new Date();
+    primerDia.setDate(1);
+    document.getElementById('ctrlDesde').value = fmtFecha(primerDia);
+    document.getElementById('ctrlHasta').value = hoy;
+  }
+});
+</script>
+</body>
+</html>

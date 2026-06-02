@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Registro de Actividades</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:Arial,sans-serif;font-size:13px;background:#f0f0f0;color:#222;}
+
+    header{background:#1a5c2a;color:white;padding:10px 20px;display:flex;align-items:center;gap:14px;}
+    .logo{width:50px;height:50px;background:white;border-radius:50%;display:flex;align-items:center;
+          justify-content:center;font-weight:bold;color:#1a5c2a;font-size:11px;text-align:center;flex-shrink:0;}
+    header h1{font-size:19px;letter-spacing:1px;}
+    header p{font-size:11px;opacity:.85;margin-top:2px;}
+
+    .main{max-width:1100px;margin:15px auto;padding:0 15px;}
+    .panel-top{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:0;}
+
+    /* CALENDARIO */
+    .calendario{background:#fff;border:1px solid #ccc;border-radius:4px;flex:1;min-width:480px;}
+    .cal-nav{background:#e8e8e8;display:flex;align-items:center;gap:8px;
+             padding:5px 10px;border-bottom:1px solid #ccc;}
+    .cal-nav .mes{font-weight:bold;font-size:13px;min-width:170px;text-align:center;}
+    .cal-dias{display:grid;grid-template-columns:repeat(7,1fr);}
+    .dh{background:#1a5c2a;color:white;text-align:center;padding:5px 2px;font-size:12px;font-weight:bold;}
+    .dc{text-align:center;padding:7px 2px;cursor:pointer;border-top:1px solid #eee;
+        font-size:12px;transition:background .15s;user-select:none;}
+    .dc:hover{background:#d4edda;}
+    .dc.hoy{background:#1a5c2a;color:white;font-weight:bold;border-radius:3px;}
+    .dc.sel{background:#ffd700;font-weight:bold;border-radius:3px;}
+    .dc.tiene::after{content:'●';display:block;font-size:8px;color:#1a5c2a;margin-top:1px;}
+    .dc.hoy.tiene::after,.dc.sel.tiene::after{color:white;}
+
+    /* PANEL IMPRIMIR */
+    .p-imp{background:#fff;border:1px solid #ccc;border-radius:4px;padding:12px;min-width:210px;}
+    .p-imp h3{font-size:12px;color:#1a5c2a;margin-bottom:8px;
+              border-bottom:1px solid #ddd;padding-bottom:4px;}
+    .p-imp label{font-size:12px;display:block;margin-bottom:3px;}
+    .p-imp input[type=date]{width:100%;padding:4px;border:1px solid #ccc;
+                            border-radius:3px;font-size:12px;margin-bottom:8px;}
+
+    /* AGENDA */
+    .agenda-hdr{background:#1a5c2a;color:white;padding:7px 12px;margin-top:12px;
+                display:flex;justify-content:space-between;align-items:center;
+                border-radius:4px 4px 0 0;}
+    .agenda-hdr span{font-size:13px;font-weight:bold;}
+
+    /* TABLA */
+    .twrap{background:#fff;border:1px solid #ccc;border-top:none;
+           border-radius:0 0 4px 4px;overflow-x:auto;}
+    table{
+  width:100%;
+  border-collapse:collapse;
+  table-layout:fixed;
+}
+    thead tr{background:#1a5c2a;color:white;}
+    thead th{padding:6px 8px;text-align:center;font-size:12px;}
+    tbody tr:nth-child(even){background:#f7f7f7;}
+    tbody tr:hover{background:#e8f5e9;}
+    tbody td{
+  padding:6px 8px;
+  font-size:12px;
+  vertical-align:middle;
+  border-bottom:1px solid #eee;
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
+    .td-desc{
+  max-width:340px;
+  white-space:normal;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+}
+    .badge{display:inline-block;background:#d4edda;color:#155724;
+           border-radius:10px;padding:2px 9px;font-size:11px;}
+    .vacio{text-align:center;color:#888;padding:22px;font-style:italic;}
+
+    /* BOTONES */
+    .btn{border:none;border-radius:3px;cursor:pointer;padding:5px 13px;font-size:12px;}
+    .bv{background:#1a5c2a;color:white;font-weight:bold;}
+    .bv:hover{background:#145022;}
+    .ba{background:#ffd700;color:#222;font-weight:bold;}
+    .ba:hover{background:#e6c200;}
+    .bg{background:#888;color:white;}
+    .br{background:#c0392b;color:white;font-size:11px;padding:3px 8px;}
+    .br:hover{background:#a93226;}
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>PROCURADURÍA AGRARIA</h1>
+  </div>
+</header>
+
+<div class="main">
+
+  <div class="panel-top">
+
+    <!-- CALENDARIO SEMANAL -->
+    <div class="calendario">
+      <div class="cal-nav">
+        <button class="btn bg" onclick="cambiarSemana(-1)">◀ Anterior</button>
+        <span class="mes" id="calMes"></span>
+        <button class="btn bg" onclick="cambiarSemana(1)">Siguiente ▶</button>
+        <button class="btn bv" style="margin-left:auto" onclick="irHoy()">HOY</button>
+      </div>
+      <div class="cal-dias" id="calDias"></div>
+    </div>
+
+    <!-- PANEL IMPRIMIR -->
+    <div class="p-imp">
+      <h3>🖨 Rango para imprimir</h3>
+      <label>Del:</label>
+      <input type="date" id="impDesde"/>
+      <label>Al:</label>
+      <input type="date" id="impHasta"/>
+      <button class="btn bv" style="width:100%;margin-top:2px"
+              onclick="irImprimir()">IMPRIMIR / DESCARGAR</button>
+    </div>
+
+  </div>
+<div id="mensaje"
+     style="display:none;
+            background:#d4edda;
+            color:#155724;
+            border:1px solid #c3e6cb;
+            padding:10px;
+            margin-bottom:10px;
+            border-radius:4px;
+            font-weight:bold;">
+</div>
+
+  <!-- AGENDA DEL DÍA -->
+  <div class="agenda-hdr">
+    <span id="agendaTitulo">Agenda del día — selecciona una fecha</span>
+    <a href="agregar.html" class="btn ba" style="text-decoration:none">
+      + Agregar actividad
+    </a>
+  </div>
+  <div class="twrap">
+    <table>
+      <thead>
+  <tr>
+    <th>INICIO</th>
+    <th>TÉRMINO</th>
+    <th>NOMBRE</th>
+    <th>ACTIVIDAD</th>
+    <th class="td-desc">DESCRIPCIÓN</th>
+    <th>RESULTADO</th>
+    <th>ELIMINAR</th>
+  </tr>
+</thead>
+      <tbody id="tablaBody">
+        '<tr><td colspan="8" class="vacio">Sin actividades registradas para este día.</td></tr>';
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+const API_URL =
+"https://script.google.com/macros/s/AKfycbx5K3T4GVVXWIcI2qVLNxF7JYTqOi1E_exQI2r6tTI1hDeTsnoC605h9cTsalpPf1vbhg/exec";
+
+
+const DB = {
+
+  async getFecha(fecha){
+
+  const r = await fetch(API_URL);
+  const datos = await r.json();
+
+  console.log(datos);
+
+  const lista = [];
+
+  datos.slice(1).forEach((fila,i)=>{
+
+let fechaExcel = String(fila[3] || "").trim();
+
+if(fechaExcel.includes("T")){
+  fechaExcel = fechaExcel.split("T")[0];
+}
+
+if(fechaExcel === fecha){
+
+  lista.push({
+    id: fila[0],
+
+    nombre: fila[2],
+    fecha: fila[3],
+
+    inicio: fila[4],
+    termino: fila[5],
+
+    tipo: fila[6],
+    descripcion: fila[7],
+
+    resultado: fila[8],
+  });
+
+}
+
+  });
+  
+
+  return lista;
+  },
+
+  async fechasConActividad(){
+
+    const r = await fetch(API_URL);
+    const datos = await r.json();
+
+    const fechas = [];
+
+    for(let i=0;i<datos.length;i++){
+      if(datos[i][2]){
+  let fecha = String(datos[i][2]);
+
+  if(fecha.includes("T")){
+    fecha = fecha.split("T")[0];
+  }
+
+  fechas.push(fecha);
+
+} 
+    }
+
+    return [...new Set(fechas)];
+  },
+
+  async delete(id){
+
+  const form = new FormData();
+
+  form.append("action","delete");
+  form.append("id",id);
+
+  const r = await fetch(API_URL,{
+    method:"POST",
+    body: form
+  });
+
+  return await r.json();
+}
+};
+
+function fmtFecha(d){
+
+  const year = d.getFullYear();
+  const month = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+
+  return `${year}-${month}-${day}`;
+}
+
+function parseFecha(s){
+
+  const [y,m,d] = s.split('-').map(Number);
+
+  return new Date(y,m-1,d,12,0,0);
+}
+
+function formatearHora(valor){
+
+  if(!valor) return "—";
+
+  const d = new Date(valor);
+
+  return d.toLocaleTimeString('es-MX',{
+    hour:'2-digit',
+    minute:'2-digit'
+  });
+}
+
+function labelLargo(s){
+  return parseFecha(s).toLocaleDateString('es-MX',{
+    weekday:'long',
+    year:'numeric',
+    month:'long',
+    day:'numeric'
+  });
+}
+
+let semanaOffset=0;
+let fechaActiva=fmtFecha(new Date());
+
+const DIAS_HDR=['LUN','MAR','MIÉ','JUE','VIE','SÁB','DOM'];
+
+function inicioSemana(ref){
+  const d=new Date(ref);
+  const dow=d.getDay();
+  d.setDate(d.getDate()+(dow===0?-6:1-dow));
+  return d;
+}
+
+async function renderCal(){
+
+  const hoy=new Date();
+  const base=new Date(hoy);
+
+  base.setDate(base.getDate()+semanaOffset*7);
+
+  const lun=inicioSemana(base);
+  const fin=new Date(lun);
+
+  fin.setDate(fin.getDate()+6);
+
+  const mL=lun.toLocaleDateString('es-MX',{
+    month:'long',
+    year:'numeric'
+  });
+
+  const mF=fin.toLocaleDateString('es-MX',{
+    month:'long',
+    year:'numeric'
+  });
+
+  document.getElementById('calMes').textContent=
+    (mL===mF?mL:mL+' / '+mF)
+    .replace(/^\w/,c=>c.toUpperCase());
+
+  const activas = await DB.fechasConActividad();
+
+  const cont=document.getElementById('calDias');
+  cont.innerHTML='';
+
+  DIAS_HDR.forEach(d=>{
+    const h=document.createElement('div');
+    h.className='dh';
+    h.textContent=d;
+    cont.appendChild(h);
+  });
+
+  for(let i=0;i<7;i++){
+
+    const d=new Date(lun);
+    d.setDate(d.getDate()+i);
+
+    const fStr=fmtFecha(d);
+
+    const c=document.createElement('div');
+
+    c.className='dc';
+    c.textContent=d.getDate();
+
+    if(fStr===fmtFecha(hoy)) c.classList.add('hoy');
+    if(fStr===fechaActiva) c.classList.add('sel');
+    if(activas.includes(fStr)) c.classList.add('tiene');
+
+    c.onclick=()=>selDia(fStr);
+
+    cont.appendChild(c);
+  }
+}
+
+async function selDia(f){
+
+  fechaActiva=f;
+
+  localStorage.setItem('pa_fecha',f);
+
+  await renderCal();
+  await renderTabla();
+
+  document.getElementById('agendaTitulo').textContent=
+    'Agenda del día: '+labelLargo(f);
+}
+
+function cambiarSemana(d){
+  semanaOffset+=d;
+  renderCal();
+}
+
+function irHoy(){
+  semanaOffset=0;
+  selDia(fmtFecha(new Date()));
+}
+
+async function renderTabla(){
+
+  const lista=await DB.getFecha(fechaActiva);
+
+  const tbody=document.getElementById('tablaBody');
+
+  tbody.innerHTML='';
+
+  if(!lista.length){
+
+    tbody.innerHTML=
+    '<tr><td colspan="9" class="vacio">Sin actividades registradas para este día.</td></tr>';
+
+    return;
+  }
+
+  lista.forEach(act=>{
+
+    const tr=document.createElement('tr');
+
+    tr.innerHTML=`
+  <td style="text-align:center">${formatearHora(act.inicio)}</td>
+  <td style="text-align:center">${formatearHora(act.termino)}</td>
+  <td>${act.nombre || '—'}</td>
+  <td style="text-align:center">
+    <span class="badge">${act.tipo}</span>
+  </td>
+  <td class="td-desc">${act.descripcion}</td>
+  <td>${act.resultado||'—'}</td>
+  <td>
+  <button
+    class="btn br"
+    onclick="eliminarActividad('${act.id}')">
+    ✕
+  </button>
+</td>
+`;
+
+    tbody.appendChild(tr);
+  });
+}
+async function eliminarActividad(id){
+
+  if(!confirm("¿Eliminar esta actividad?")){
+    return;
+  }
+
+  const resp = await DB.delete(id);
+
+  if(resp.ok){
+
+    const msg = document.getElementById("mensaje");
+
+    msg.style.display = "block";
+    msg.textContent = "✅ Actividad eliminada correctamente";
+
+    setTimeout(()=>{
+      location.reload();
+    },1500);
+
+  }else{
+
+    alert(resp.mensaje || "No se pudo eliminar");
+
+  }
+}
+
+function irImprimir(){
+
+  const desde=document.getElementById('impDesde').value;
+  const hasta=document.getElementById('impHasta').value;
+
+  if(!desde || !hasta){
+    alert('Selecciona el rango de fechas.');
+    return;
+  }
+
+  if(desde>hasta){
+    alert('La fecha "Del" no puede ser mayor que "Al".');
+    return;
+  }
+
+  window.location.href=
+    `imprimir.html?desde=${desde}&hasta=${hasta}`;
+}
+
+window.addEventListener('DOMContentLoaded',()=>{
+
+  fechaActiva=
+    localStorage.getItem('pa_fecha') ||
+    fmtFecha(new Date());
+
+  const hoy=fmtFecha(new Date());
+
+  document.getElementById('impDesde').value=hoy;
+  document.getElementById('impHasta').value=hoy;
+
+  selDia(fechaActiva);
+});
+</script>
+</body>
+</html>
